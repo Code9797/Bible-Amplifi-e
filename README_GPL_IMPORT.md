@@ -1,0 +1,1 @@
+Préparation de l'intégration GPL d'AndBible.
