@@ -1,0 +1,132 @@
+name: Build bundled Quanda SWORD module
+
+on:
+  push:
+    branches: [ andbible-redesign ]
+    paths:
+      - '.github/workflows/build-quanda-sword-module.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-module:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: andbible-redesign
+          fetch-depth: 0
+
+      - name: Install SWORD conversion tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsword-utils zip
+          osis2mod --help >/dev/null 2>&1 || true
+
+      - name: Convert Amplified XML to OSIS and SWORD
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/quanda-sword
+          mkdir -p /tmp/quanda-sword/modules/texts/ztext/quandaamp
+          mkdir -p /tmp/quanda-sword/mods.d
+
+          python3 quanda-andbible/tools/quanda_xml_to_osis.py \
+            EnglishAmplifiedBible.xml /tmp/QuandaAMP.osis.xml
+
+          osis2mod /tmp/quanda-sword/modules/texts/ztext/quandaamp \
+            /tmp/QuandaAMP.osis.xml -z -b 4
+
+          cat > /tmp/quanda-sword/mods.d/quandaamp.conf <<'EOF'
+          [QuandaAMP]
+          DataPath=./modules/texts/ztext/quandaamp/
+          ModDrv=zText
+          BlockType=BOOK
+          CompressType=ZIP
+          SourceType=OSIS
+          Lang=en
+          Encoding=UTF-8
+          Versification=KJV
+          Description=Quanda Bible Amplifiée
+          About=Amplified Bible text bundled for Quanda Bible Amplifiée. Software interface derived from AndBible under GPL-3.0-or-later. Bible text rights are separate.
+          Version=1.0
+          DistributionLicense=Copyrighted
+          EOF
+
+          mkdir -p quanda-andbible/app/src/main/assets/quanda
+          rm -f quanda-andbible/app/src/main/assets/quanda/QuandaAMP.zip
+          (cd /tmp/quanda-sword && zip -qr "$GITHUB_WORKSPACE/quanda-andbible/app/src/main/assets/quanda/QuandaAMP.zip" mods.d modules)
+          unzip -l quanda-andbible/app/src/main/assets/quanda/QuandaAMP.zip | head -80
+
+      - name: Auto-install bundled Quanda Bible at startup
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          startup = Path('quanda-andbible/app/src/main/java/net/bible/android/view/activity/StartupActivity.kt')
+          s = startup.read_text(encoding='utf-8')
+
+          helper = '''    /** Install the bundled Quanda Amplified SWORD module on first launch. */
+              private suspend fun ensureBundledQuandaBibleInstalled() = withContext(Dispatchers.IO) {
+                  if (SwordDocumentFacade.bibles.any { it.initials == "QuandaAMP" }) return@withContext
+                  try {
+                      BackupControl.extractAndRegisterModuleArchive(
+                          newInputStream = { assets.open("quanda/QuandaAMP.zip") }
+                      )
+                      Log.i(TAG, "Bundled QuandaAMP module installed")
+                  } catch (e: Exception) {
+                      Log.e(TAG, "Unable to install bundled QuandaAMP module", e)
+                  }
+              }
+
+          '''
+          helper = helper.replace('              ', '    ')
+
+          marker = '    private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {'
+          if 'ensureBundledQuandaBibleInstalled' not in s:
+              s = s.replace(marker, helper + marker)
+
+          needle = '        initializeDatabase()\n\n        // When enabled, go to the calculator first,'
+          replacement = '        initializeDatabase()\n        ensureBundledQuandaBibleInstalled()\n\n        // When enabled, go to the calculator first,'
+          s = s.replace(needle, replacement)
+          startup.write_text(s, encoding='utf-8')
+
+          # Quanda branding in every locale while preserving all other upstream translations.
+          for p in Path('quanda-andbible/app/src/main/res').glob('values*/strings.xml'):
+              text = p.read_text(encoding='utf-8')
+              for name, value in {
+                  'app_name_andbible': 'Quanda Bible',
+                  'app_name_short': 'Quanda Bible',
+                  'app_name_medium': 'Quanda Bible Amplifiée',
+                  'app_name_long': 'Quanda Bible Amplifiée',
+              }.items():
+                  text = re.sub(
+                      rf'<string name="{name}"(?: [^>]*)?>.*?</string>',
+                      f'<string name="{name}">{value}</string>',
+                      text,
+                      count=1,
+                      flags=re.S,
+                  )
+              p.write_text(text, encoding='utf-8')
+          PY
+
+          cat >> quanda-andbible/QUANDA_NOTICE.md <<'EOF'
+
+          ## Bundled Bible module
+
+          `EnglishAmplifiedBible.xml` is converted at build time to OSIS and then to a compressed SWORD `zText` module named `QuandaAMP`. `StartupActivity` installs that bundled module headlessly on first launch through AndBible's existing `BackupControl.extractAndRegisterModuleArchive` implementation, so the Amplified text is available inside the native AndBible study engine.
+          EOF
+
+      - name: Commit bundled module integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add quanda-andbible/app/src/main/assets/quanda/QuandaAMP.zip \
+                  quanda-andbible/app/src/main/java/net/bible/android/view/activity/StartupActivity.kt \
+                  quanda-andbible/app/src/main/res/values*/strings.xml \
+                  quanda-andbible/QUANDA_NOTICE.md
+          git commit -m "Intégrer la Bible Amplifiée comme module SWORD natif de Quanda" || true
+          git push origin HEAD:andbible-redesign

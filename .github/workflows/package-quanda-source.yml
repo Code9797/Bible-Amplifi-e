@@ -1,0 +1,46 @@
+name: Package Quanda Bible source ZIP
+
+on:
+  push:
+    branches: [ andbible-redesign ]
+    paths:
+      - '.github/workflows/package-quanda-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: andbible-redesign
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Prepare source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf Quanda-Bible-Amplifiee-Source
+          mkdir -p Quanda-Bible-Amplifiee-Source
+          cp -a quanda-andbible/. Quanda-Bible-Amplifiee-Source/
+          cp -a README_GPL_IMPORT.md Quanda-Bible-Amplifiee-Source/README_GPL_IMPORT.md 2>/dev/null || true
+          cp -a EnglishAmplifiedBible.xml Quanda-Bible-Amplifiee-Source/EnglishAmplifiedBible.xml 2>/dev/null || true
+          find Quanda-Bible-Amplifiee-Source -type d \( -name build -o -name .gradle -o -name node_modules \) -prune -exec rm -rf {} + || true
+          find Quanda-Bible-Amplifiee-Source -type f \( -name '*.apk' -o -name '*.aab' \) -delete || true
+          printf '%s\n' 'Quanda Bible Amplifiée — source Android basé sur AndBible (GPL-3.0-or-later).' > Quanda-Bible-Amplifiee-Source/QUANDA_SOURCE_PACKAGE.txt
+          printf '%s\n' 'Ouvrir ce dossier avec Android Studio. Le texte biblique Amplified Bible a une licence distincte du logiciel GPL.' >> Quanda-Bible-Amplifiee-Source/QUANDA_SOURCE_PACKAGE.txt
+          zip -r -9 Quanda-Bible-Amplifiee-Source.zip Quanda-Bible-Amplifiee-Source >/dev/null
+          ls -lh Quanda-Bible-Amplifiee-Source.zip
+
+      - name: Upload source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quanda-Bible-Amplifiee-Source-ZIP
+          path: Quanda-Bible-Amplifiee-Source.zip
+          if-no-files-found: error
+          retention-days: 30

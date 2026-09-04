@@ -1,0 +1,85 @@
+name: Import AndBible GPL source
+
+on:
+  push:
+    branches: [ andbible-redesign ]
+    paths:
+      - '.github/workflows/import-andbible.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Quanda branch
+        uses: actions/checkout@v4
+        with:
+          ref: andbible-redesign
+          fetch-depth: 0
+
+      - name: Import AndBible current-stable source and graphical resources
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/andbible
+          git clone --depth 1 --branch current-stable --recurse-submodules https://github.com/AndBible/and-bible.git /tmp/andbible
+
+          rm -rf quanda-andbible
+          mkdir -p quanda-andbible
+          rsync -a --exclude='.git' --exclude='keystore.properties.gpg' /tmp/andbible/ quanda-andbible/
+
+          # Bundle the user-provided Amplified Bible XML for the Quanda integration layer.
+          mkdir -p quanda-andbible/app/src/main/assets/quanda
+          cp EnglishAmplifiedBible.xml quanda-andbible/app/src/main/assets/quanda/EnglishAmplifiedBible.xml
+
+          # Rebrand visible application names while keeping upstream source/package structure intact.
+          python3 - <<'PY'
+          from pathlib import Path
+          files = [
+              Path('quanda-andbible/app/src/main/res/values/strings.xml'),
+              Path('quanda-andbible/app/src/debug/res/values/strings.xml'),
+          ]
+          for p in files:
+              if not p.exists():
+                  continue
+              s = p.read_text(encoding='utf-8')
+              replacements = {
+                  '<string name="app_name_andbible">AndBible</string>': '<string name="app_name_andbible">Quanda Bible</string>',
+                  '<string name="app_name_short">Bible Study</string>': '<string name="app_name_short">Quanda Bible</string>',
+                  '<string name="app_name_medium">Bible Study (AndBible)</string>': '<string name="app_name_medium">Quanda Bible Amplifiée</string>',
+                  '<string name="app_name_long">AndBible: Bible Study</string>': '<string name="app_name_long">Quanda Bible Amplifiée</string>',
+                  '<string name="app_name_short">Bible Study *Debug*</string>': '<string name="app_name_short">Quanda Bible *Debug*</string>',
+                  '<string name="app_name_medium">Bible Study (AndBible) *Debug*</string>': '<string name="app_name_medium">Quanda Bible Amplifiée *Debug*</string>',
+                  '<string name="app_name_long">AndBible: Bible Study *Debug*</string>': '<string name="app_name_long">Quanda Bible Amplifiée *Debug*</string>',
+              }
+              for old, new in replacements.items():
+                  s = s.replace(old, new)
+              p.write_text(s, encoding='utf-8')
+
+          gradle = Path('quanda-andbible/app/build.gradle.kts')
+          s = gradle.read_text(encoding='utf-8')
+          s = s.replace('val applicationIdStandard = "net.bible.android.activity"', 'val applicationIdStandard = "com.webmotion.quandabible.amplifiee"')
+          gradle.write_text(s, encoding='utf-8')
+          PY
+
+          cat > quanda-andbible/QUANDA_NOTICE.md <<'EOF'
+          # Quanda Bible Amplifiée — AndBible-based edition
+
+          This directory contains a derivative work based on **AndBible: Bible Study**.
+
+          Upstream: https://github.com/AndBible/and-bible
+          Imported branch: `current-stable`
+          Upstream license: GNU General Public License, version 3 or later.
+
+          The upstream source code and graphical resources are retained under their applicable copyright and GPL notices. Modifications made for Quanda include visible application branding, the Android application ID, and bundling of the user-provided `EnglishAmplifiedBible.xml` for the Quanda integration layer.
+
+          Distribution of a binary derived from this source must comply with GPL-3.0-or-later, including making the corresponding source code and license notices available. Bible text licensing is separate from the AndBible software license and must be verified independently before public redistribution.
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add quanda-andbible
+          git commit -m "Importer le code et les ressources graphiques GPL d'AndBible pour Quanda Bible" || true
+          git push origin HEAD:andbible-redesign
