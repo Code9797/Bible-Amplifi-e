@@ -1,6 +1,10 @@
 name: Import AndBible GPL source
 
 on:
+  push:
+    branches: [ andbible-redesign ]
+    paths:
+      - '.github/workflows/import-andbible.yml'
   workflow_dispatch:
 
 permissions:
