@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Biblijos studijos</string>
-  <string name="app_name_medium">Biblijos studijos (AndBible)</string>
-  <string name="app_name_long">AndBible: Biblijos studijos</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->

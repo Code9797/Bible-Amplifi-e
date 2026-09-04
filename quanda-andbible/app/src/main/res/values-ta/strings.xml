@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">ஆண்ட் பைபில்</string>
-  <string name="app_name_short">விவிலிய ஆய்வு</string>
-  <string name="app_name_medium">விவிலிய ஆய்வு (ஆண்ட் பைபில்)</string>
-  <string name="app_name_long">ஆண்ட் பைபில்: பைபில் ஸ்டடி</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">பதிப்பு %s</string>
   <string name="no_sdcard_error">SD கார்டை உள்ளிட்டு மீண்டும் தொடங்கவும்.</string>
   <!--Main menu-->

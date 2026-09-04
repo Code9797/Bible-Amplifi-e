@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Bibelstudie</string>
-  <string name="app_name_medium">Bible Study (AndBible)</string>
-  <string name="app_name_long">AndBible: Bibelstudie</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Versjon %s</string>
   <string name="no_sdcard_error">Sett inn minnekort og restart applikasjonen</string>
   <!--Main menu-->

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">성경 공부</string>
-  <string name="app_name_medium">성경 연구 (AndBible)</string>
-  <string name="app_name_long">AndBible: 성경 공부</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">버전 %s</string>
   <string name="no_sdcard_error">SD 카드를 넣고 어플리케이션을 다시 시작하세요.</string>
   <!--Main menu-->

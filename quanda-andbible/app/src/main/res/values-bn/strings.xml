@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">এ্যন্ড বাইবেল</string>
-  <string name="app_name_short">বাইবেল অধ্যায়ণ</string>
-  <string name="app_name_medium">বাইবেল অধ্যায়ণ ( এ্যন্ড বাইবেল) </string>
-  <string name="app_name_long">এ্যন্ড বাইবেল: বাইবেল অধ্যায়ণ</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">সংস্করণ %s</string>
   <string name="no_sdcard_error">দয়াকরে এসডি কার্ড লাগান এবং পুনরায় প্রয়োগ করুন</string>
   <!--Main menu-->

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Bíblia</string>
-  <string name="app_name_medium">Bíblia (AndBible)</string>
-  <string name="app_name_long">AndBible: Estudo Biblico</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Insira um cartão SD e reinicie a aplicação.</string>
   <!--Main menu-->

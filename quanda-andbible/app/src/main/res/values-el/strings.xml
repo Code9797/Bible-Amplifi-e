@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Bible Study</string>
-  <string name="app_name_medium">Βιβλική Μελέτη (AndBible)</string>
-  <string name="app_name_long">AndBible: Bible Study</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Εισάγετε κάρτα μνήμης και επαννεκινήστε την εφαρμογή</string>
   <!--Main menu-->

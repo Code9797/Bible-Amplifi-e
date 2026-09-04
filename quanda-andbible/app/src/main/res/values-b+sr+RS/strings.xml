@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Учење Библије</string>
-  <string name="app_name_medium">Учење Библије (AndBible)</string>
-  <string name="app_name_long">Анд Библија: Учење Библије</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Верзија%s</string>
   <string name="no_sdcard_error">Молим Вас убаците СД картицу и рестартујте апликацију.</string>
   <!--Main menu-->

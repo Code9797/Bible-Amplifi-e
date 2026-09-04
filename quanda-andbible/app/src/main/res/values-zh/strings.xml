@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">研經工具</string>
-  <string name="app_name_medium">研經工具 (AndBible)</string>
-  <string name="app_name_long">AndBible: 研經工具</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
   <!--Main menu-->

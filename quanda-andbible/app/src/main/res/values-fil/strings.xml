@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Pag-aaral ng Bibliya</string>
-  <string name="app_name_medium">Pag-aaral ng Bibliya (AndBible)</string>
-  <string name="app_name_long">AndBible: Pag-aaral ng Bibliya</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Bersyon %s</string>
   <string name="no_sdcard_error">Mangyaring maglagay ng SD card at i-restart ang application.</string>
   <!--Main menu-->

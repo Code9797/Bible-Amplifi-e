@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Киелі Кітапті Зерттеу</string>
-  <string name="app_name_medium">Киелі Кітапты Зерттеу (AndBible)</string>
-  <string name="app_name_long">AndBible: Киелі Кітап+</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->

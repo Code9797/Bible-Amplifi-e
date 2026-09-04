@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_andbible">AndBible</string>
-  <string name="app_name_short">Kajian Alkitab</string>
-  <string name="app_name_medium">Kajian Alkitab (AndBible)</string>
-  <string name="app_name_long">AndBible: Kajian Alkitab</string>
+  <string name="app_name_andbible">Quanda Bible</string>
+  <string name="app_name_short">Quanda Bible</string>
+  <string name="app_name_medium">Quanda Bible Amplifiée</string>
+  <string name="app_name_long">Quanda Bible Amplifiée</string>
   <string name="version_text">Versi %s</string>
   <string name="no_sdcard_error">Sila masukkan kad SD dan mulakan semula aplikasi.</string>
   <!--Main menu-->

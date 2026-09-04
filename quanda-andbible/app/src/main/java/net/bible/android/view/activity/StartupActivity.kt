@@ -233,6 +233,19 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    /** Install the bundled Quanda Amplified SWORD module on first launch. */
+    private suspend fun ensureBundledQuandaBibleInstalled() = withContext(Dispatchers.IO) {
+        if (SwordDocumentFacade.bibles.any { it.initials == "QuandaAMP" }) return@withContext
+        try {
+            BackupControl.extractAndRegisterModuleArchive(
+      newInputStream = { assets.open("quanda/QuandaAMP.zip") }
+            )
+            Log.i(TAG, "Bundled QuandaAMP module installed")
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to install bundled QuandaAMP module", e)
+        }
+    }
+
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
@@ -240,6 +253,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         //BackupControl.deleteAllDatabases()
 
         initializeDatabase()
+        ensureBundledQuandaBibleInstalled()
 
         // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.
