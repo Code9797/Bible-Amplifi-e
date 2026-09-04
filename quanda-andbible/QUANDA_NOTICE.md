@@ -13,3 +13,10 @@ Distribution of a binary derived from this source must comply with GPL-3.0-or-la
 ## Bundled Bible module
 
 `EnglishAmplifiedBible.xml` is converted at build time to OSIS and then to a compressed SWORD `zText` module named `QuandaAMP`. `StartupActivity` installs that bundled module headlessly on first launch through AndBible's existing `BackupControl.extractAndRegisterModuleArchive` implementation, so the Amplified text is available inside the native AndBible study engine.
+
+## Quanda changes
+
+- Visible product name: **Quanda Bible Amplifiée**.
+- Standard Android application ID: `com.webmotion.quandabible.amplifiee`.
+- The native AndBible source tree, JSword study engine and upstream graphical resources are intentionally retained instead of reimplementing them.
+- The application is therefore a GPL derivative of AndBible, not merely a look-alike implementation.
