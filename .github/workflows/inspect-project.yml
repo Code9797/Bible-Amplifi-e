@@ -1,0 +1,29 @@
+name: Inspect Android Project
+
+on:
+  push:
+    branches: [ andbible-redesign ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract project
+        run: |
+          rm -rf inspect-project
+          mkdir inspect-project
+          unzip -q BibleAmplifieeFR_AndroidStudio_Logo_Quanda.zip -d inspect-project
+          echo '=== FILE TREE ==='
+          find inspect-project/BibleAmplifieeFR/app/src/main -maxdepth 6 -type f | sort
+          echo '=== KOTLIN SOURCES ==='
+          for f in $(find inspect-project/BibleAmplifieeFR/app/src/main/java -type f -name '*.kt' | sort); do
+            echo "===== $f ====="
+            sed -n '1,420p' "$f"
+          done
+          echo '=== APP GRADLE ==='
+          cat inspect-project/BibleAmplifieeFR/app/build.gradle.kts
