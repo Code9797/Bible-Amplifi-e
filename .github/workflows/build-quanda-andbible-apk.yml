@@ -5,7 +5,8 @@ on:
     branches: [ andbible-redesign ]
     paths:
       - '.github/workflows/build-quanda-andbible-apk.yml'
-      - 'quanda-andbible/**'
+      - 'quanda-andbible/app/build.gradle.kts'
+      - 'quanda-andbible/app/src/main/**'
   workflow_dispatch:
 
 permissions:
@@ -14,9 +15,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
-      - name: Checkout
+      - name: Checkout Quanda integration
         uses: actions/checkout@v4
         with:
           ref: andbible-redesign
@@ -39,8 +40,37 @@ jobs:
       - name: Install Android SDK 36
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
+      - name: Recreate exact AndBible upstream tree and apply Quanda changes
+        run: |
+          set -euxo pipefail
+          rm -rf build-source
+          git clone --depth 1 --branch current-stable --recurse-submodules \
+            https://github.com/AndBible/and-bible.git build-source
+          cd build-source
+          git submodule update --init --recursive --depth=1
+          cd "$GITHUB_WORKSPACE"
+
+          # Keep the exact upstream AndBible/JSword source and graphics, then overlay only
+          # the Quanda-specific branding, application ID, bundled Bible module and startup hook.
+          cp quanda-andbible/app/build.gradle.kts build-source/app/build.gradle.kts
+          cp quanda-andbible/app/src/main/java/net/bible/android/view/activity/StartupActivity.kt \
+             build-source/app/src/main/java/net/bible/android/view/activity/StartupActivity.kt
+
+          for src in quanda-andbible/app/src/main/res/values*/strings.xml; do
+            rel="${src#quanda-andbible/app/src/main/}"
+            mkdir -p "build-source/app/src/main/$(dirname "$rel")"
+            cp "$src" "build-source/app/src/main/$rel"
+          done
+
+          rm -rf build-source/app/src/main/assets/quanda
+          mkdir -p build-source/app/src/main/assets
+          cp -R quanda-andbible/app/src/main/assets/quanda build-source/app/src/main/assets/quanda
+
+          # Preserve Quanda derivative notice in the build source tree.
+          cp quanda-andbible/QUANDA_NOTICE.md build-source/QUANDA_NOTICE.md
+
       - name: Build Quanda standard GitHub debug APK
-        working-directory: quanda-andbible
+        working-directory: build-source
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon --console plain assembleStandardGithubDebug
@@ -48,7 +78,7 @@ jobs:
       - name: Collect APK
         run: |
           mkdir -p apk-output
-          APK=$(find quanda-andbible/app/build/outputs/apk/standardGithub/debug -name '*.apk' -type f | head -1)
+          APK=$(find build-source/app/build/outputs/apk/standardGithub/debug -name '*.apk' -type f | head -1)
           test -n "$APK"
           cp "$APK" apk-output/Quanda-Bible-Amplifiee-AndBible-GPL.apk
           ls -lh apk-output/Quanda-Bible-Amplifiee-AndBible-GPL.apk
