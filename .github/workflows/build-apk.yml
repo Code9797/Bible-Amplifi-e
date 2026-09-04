@@ -49,6 +49,10 @@ jobs:
           cp overrides/app/src/main/java/com/webmotion/bibleamplifiee/data/BibleModels.kt "$PROJECT/app/src/main/java/com/webmotion/bibleamplifiee/data/BibleModels.kt"
           cp overrides/app/src/main/java/com/webmotion/bibleamplifiee/data/PreferenceStore.kt "$PROJECT/app/src/main/java/com/webmotion/bibleamplifiee/data/PreferenceStore.kt"
 
+          # Kotlin: a trailing lambda would bind to SearchHitRow.supporting because
+          # onClick is not the last parameter. Keep the fix explicit in the build.
+          sed -i 's/SearchHitRow(hit) { vm.openRef(hit.ref) }/SearchHitRow(hit, onClick = { vm.openRef(hit.ref) })/' "$PROJECT/app/src/main/java/com/webmotion/bibleamplifiee/BibleApp.kt"
+
           sed -i 's/compileSdk = 37/compileSdk = 36/' "$PROJECT/app/build.gradle.kts"
           sed -i 's/targetSdk = 37/targetSdk = 36/' "$PROJECT/app/build.gradle.kts"
           sed -i '/org.jetbrains.kotlin.android/d' "$PROJECT/build.gradle.kts"
