@@ -33,14 +33,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK 37
-        run: yes | sdkmanager --licenses >/dev/null || true; sdkmanager "platforms;android-37" "build-tools;37.0.0"
+      - name: Install Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Extract project
         run: |
           rm -rf build-project
           mkdir build-project
           unzip -q BibleAmplifieeFR_AndroidStudio_Logo_Quanda.zip -d build-project
+          sed -i 's/compileSdk = 37/compileSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
+          sed -i 's/targetSdk = 37/targetSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
           ls -la build-project/BibleAmplifieeFR
 
       - name: Build debug APK
