@@ -36,15 +36,27 @@ jobs:
       - name: Install Android SDK 36
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Extract project
+      - name: Extract and adapt project for AGP 9
         run: |
           rm -rf build-project
           mkdir build-project
           unzip -q BibleAmplifieeFR_AndroidStudio_Logo_Quanda.zip -d build-project
-          sed -i 's/compileSdk = 37/compileSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
-          sed -i 's/targetSdk = 37/targetSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
-          printf '\nandroid.newDsl=false\n' >> build-project/BibleAmplifieeFR/gradle.properties
-          ls -la build-project/BibleAmplifieeFR
+          PROJECT=build-project/BibleAmplifieeFR
+          sed -i 's/compileSdk = 37/compileSdk = 36/' "$PROJECT/app/build.gradle.kts"
+          sed -i 's/targetSdk = 37/targetSdk = 36/' "$PROJECT/app/build.gradle.kts"
+          sed -i '/org.jetbrains.kotlin.android/d' "$PROJECT/build.gradle.kts"
+          sed -i '/org.jetbrains.kotlin.android/d' "$PROJECT/app/build.gradle.kts"
+          sed -i '/android.builtInKotlin=false/d' "$PROJECT/gradle.properties"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build-project/BibleAmplifieeFR/app/build.gradle.kts')
+          s = p.read_text()
+          s = s.replace('''    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n''', '')
+          p.write_text(s)
+          PY
+          cat "$PROJECT/build.gradle.kts"
+          cat "$PROJECT/app/build.gradle.kts"
+          cat "$PROJECT/gradle.properties"
 
       - name: Build debug APK
         working-directory: build-project/BibleAmplifieeFR
