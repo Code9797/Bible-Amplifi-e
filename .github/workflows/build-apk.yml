@@ -43,6 +43,7 @@ jobs:
           unzip -q BibleAmplifieeFR_AndroidStudio_Logo_Quanda.zip -d build-project
           sed -i 's/compileSdk = 37/compileSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
           sed -i 's/targetSdk = 37/targetSdk = 36/' build-project/BibleAmplifieeFR/app/build.gradle.kts
+          printf '\nandroid.newDsl=false\n' >> build-project/BibleAmplifieeFR/gradle.properties
           ls -la build-project/BibleAmplifieeFR
 
       - name: Build debug APK
