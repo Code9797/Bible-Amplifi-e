@@ -610,7 +610,7 @@ private fun SearchScreen(vm: BibleViewModel) {
         )
         Text("Recherche dans le texte anglais et dans les traductions françaises déjà enregistrées.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(vertical = 8.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            items(results, key = { it.ref.key }) { hit -> SearchHitRow(hit) { vm.openRef(hit.ref) } }
+            items(results, key = { it.ref.key }) { hit -> SearchHitRow(hit, onClick = { vm.openRef(hit.ref) }) }
         }
     }
 }
