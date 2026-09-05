@@ -1,0 +1,114 @@
+name: Build Collins English Dictionary APK
+
+on:
+  push:
+    branches: [ collins-english-build ]
+    paths:
+      - '.github/workflows/build-collins-apk.yml'
+      - 'collins-build/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout integration
+        uses: actions/checkout@v4
+        with:
+          ref: collins-english-build
+          fetch-depth: 10
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Prepare AndBible-based Collins source
+        run: |
+          set -euxo pipefail
+          rm -rf build-source
+          git clone --depth 1 --branch current-stable --recurse-submodules https://github.com/AndBible/and-bible.git build-source
+          cd build-source
+          git submodule update --init --recursive --depth=1
+          cd "$GITHUB_WORKSPACE"
+
+          # Collins launcher activity.
+          mkdir -p build-source/app/src/main/java/net/bible/android/activity
+          cp collins-build/CollinsDictionaryActivity.kt build-source/app/src/main/java/net/bible/android/activity/CollinsDictionaryActivity.kt
+
+          # User-provided Collins logo, reduced for launcher/header use.
+          mkdir -p build-source/app/src/main/res/drawable-nodpi
+          base64 -d collins-build/collins_logo_192.jpg.b64 > build-source/app/src/main/res/drawable-nodpi/collins_logo.jpg
+
+          # Dedicated package id for this derivative build.
+          sed -i 's/val applicationIdStandard = "net.bible.android.activity"/val applicationIdStandard = "com.webmotion.collinsenglish"/' build-source/app/build.gradle.kts
+
+          # Make Collins the visible application name/icon and launcher activity.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build-source/app/src/main/AndroidManifest.xml')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@drawable/collins_logo"', 1)
+          s = s.replace('android:roundIcon="@mipmap/ic_launcher_round"', 'android:roundIcon="@drawable/collins_logo"', 1)
+          s = s.replace('android:label="@string/app_name_short"', 'android:label="Collins English Dictionary"', 1)
+          marker = '</application>'
+          activity = '''
+              <activity
+                  android:name="net.bible.android.activity.CollinsDictionaryActivity"
+                  android:exported="true"
+                  android:label="Collins English Dictionary"
+                  android:theme="@style/AppTheme">
+                  <intent-filter>
+                      <action android:name="android.intent.action.MAIN" />
+                      <category android:name="android.intent.category.LAUNCHER" />
+                  </intent-filter>
+              </activity>
+          '''
+          if 'CollinsDictionaryActivity' not in s:
+              s = s.replace(marker, activity + '\n    ' + marker)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+          cat > build-source/COLLINS_NOTICE.md <<'EOF'
+          Collins English Dictionary Android derivative build.
+          Software base: AndBible current-stable, GPL-3.0-or-later.
+          The Collins dictionary data is not bundled into this CI APK; the user imports the separately supplied SQLite data file on-device. Dictionary content licensing remains separate from AndBible's GPL license.
+          EOF
+
+      - name: Build debug APK
+        working-directory: build-source
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon --console plain assembleStandardGithubDebug
+
+      - name: Collect APK
+        run: |
+          mkdir -p apk-output
+          APK=$(find build-source/app/build/outputs/apk/standardGithub/debug -name '*.apk' -type f | head -1)
+          test -n "$APK"
+          cp "$APK" apk-output/Collins-English-Dictionary.apk
+          ls -lh apk-output/Collins-English-Dictionary.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Collins-English-Dictionary-APK
+          path: apk-output/Collins-English-Dictionary.apk
+          if-no-files-found: error
+          retention-days: 30
