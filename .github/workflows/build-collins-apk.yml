@@ -48,18 +48,17 @@ jobs:
           git submodule update --init --recursive --depth=1
           cd "$GITHUB_WORKSPACE"
 
-          # Collins launcher activity.
           mkdir -p build-source/app/src/main/java/net/bible/android/activity
           cp collins-build/CollinsDictionaryActivity.kt build-source/app/src/main/java/net/bible/android/activity/CollinsDictionaryActivity.kt
+          # Compatibility fixes against the current AndBible namespace/API.
+          sed -i 's/net\.bible\.android\.R\.drawable\.collins_logo/net.bible.android.activity.R.drawable.collins_logo/' build-source/app/src/main/java/net/bible/android/activity/CollinsDictionaryActivity.kt
+          sed -i 's/textIsSelectable = true/setTextIsSelectable(true)/' build-source/app/src/main/java/net/bible/android/activity/CollinsDictionaryActivity.kt
 
-          # User-provided Collins logo, reduced for launcher/header use.
           mkdir -p build-source/app/src/main/res/drawable-nodpi
           base64 -d collins-build/collins_logo_192.jpg.b64 > build-source/app/src/main/res/drawable-nodpi/collins_logo.jpg
 
-          # Dedicated package id for this derivative build.
           sed -i 's/val applicationIdStandard = "net.bible.android.activity"/val applicationIdStandard = "com.webmotion.collinsenglish"/' build-source/app/build.gradle.kts
 
-          # Make Collins the visible application name/icon and launcher activity.
           python3 - <<'PY'
           from pathlib import Path
           p = Path('build-source/app/src/main/AndroidManifest.xml')
