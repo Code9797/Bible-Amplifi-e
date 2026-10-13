@@ -1,0 +1,31 @@
+name: Fetch J2ME Build Tools
+
+on:
+  push:
+    branches: [ american-english-j2me-apk ]
+    paths:
+      - '.github/workflows/fetch-j2me-tools.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download J2ME Loader and Apktool
+        run: |
+          mkdir -p tools
+          curl -L --fail --retry 3 -o tools/J2ME_Loader.apk \
+            https://github.com/nikita36078/J2ME-Loader/releases/download/1.8.2/J2ME_Loader-1.8.2-open-release.apk
+          curl -L --fail --retry 3 -o tools/apktool.jar \
+            https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar
+          ls -lh tools
+      - name: Upload tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: j2me-build-tools
+          path: tools/
+          retention-days: 7
