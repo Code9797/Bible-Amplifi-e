@@ -1,0 +1,32 @@
+name: Fetch Android APK Signing Tools
+
+on:
+  push:
+    branches: [ american-english-j2me-apk ]
+    paths:
+      - '.github/workflows/fetch-apksigner-tools.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v3
+      - name: Install build tools
+        run: |
+          sdkmanager "build-tools;36.0.0"
+          mkdir -p tools
+          cp -a "$ANDROID_HOME/build-tools/36.0.0/apksigner" tools/
+          cp -a "$ANDROID_HOME/build-tools/36.0.0/lib" tools/
+          cp -a "$ANDROID_HOME/build-tools/36.0.0/zipalign" tools/
+          ls -R tools
+      - name: Upload signing tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-signing-tools
+          path: tools/
+          retention-days: 7
