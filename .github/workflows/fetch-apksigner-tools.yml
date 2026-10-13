@@ -19,15 +19,12 @@ jobs:
         with:
           distribution: zulu
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - name: Install build tools
+      - name: Download Android apksig
         run: |
-          sdkmanager "build-tools;36.0.0"
           mkdir -p tools
-          cp -a "$ANDROID_HOME/build-tools/36.0.0/apksigner" tools/
-          cp -a "$ANDROID_HOME/build-tools/36.0.0/lib" tools/
-          cp -a "$ANDROID_HOME/build-tools/36.0.0/zipalign" tools/
-          ls -R tools
+          curl -L --fail --retry 3 -o tools/apksig.jar \
+            https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/8.5.2/apksig-8.5.2.jar
+          ls -lh tools/apksig.jar
       - name: Upload signing tools
         uses: actions/upload-artifact@v4
         with:
