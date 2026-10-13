@@ -15,19 +15,23 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: '17'
-      - name: Download Android apksig
+      - name: Locate preinstalled Android build tools
         run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
+          ZIPALIGN="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign | sort -V | tail -1)"
+          test -n "$APKSIGNER"
+          test -n "$ZIPALIGN"
+          DIR="$(dirname "$APKSIGNER")"
           mkdir -p tools
-          curl -L --fail --retry 3 -o tools/apksig.jar \
-            https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/8.5.2/apksig-8.5.2.jar
-          ls -lh tools/apksig.jar
+          cp "$APKSIGNER" tools/
+          cp "$ZIPALIGN" tools/
+          cp -a "$DIR/lib" tools/
+          echo "Using $DIR"
+          ls -lh tools tools/lib
       - name: Upload signing tools
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-signing-tools
+          name: android-apk-signing-tools-full
           path: tools/
           retention-days: 7
